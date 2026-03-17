@@ -7,7 +7,6 @@ public partial class StartPage : ContentPage
 	Label lbl;
     Grid grid;
     bool isXTurn = true;
-    Button btn;
     public StartPage()
     {
         lbl = new Label
@@ -18,7 +17,8 @@ public partial class StartPage : ContentPage
 
         };
 
-        grid = new Grid {
+        grid = new Grid
+        {
             HeightRequest = 300,
             WidthRequest = 300,
             HorizontalOptions = LayoutOptions.Center
@@ -26,45 +26,55 @@ public partial class StartPage : ContentPage
 
         for (int i = 0; i < 3; i++)
         {
-            grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Star });
-            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+            grid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
         }
 
         for (int row = 0; row < 3; row++)
         {
             for (int col = 0; col < 3; col++)
             {
-                btn = new Button
+                Frame frame = new Frame
                 {
-                    FontSize = 40,
-                    BackgroundColor = Colors.White,
                     BorderColor = Colors.Black,
-                    BorderWidth = 2
+                    BackgroundColor = Colors.White
                 };
-                btn.Clicked += Btn_Clicked;
-                grid.Add(btn, col, row);
-            }
-        }
 
-        Content = new VerticalStackLayout
-        {
-            Spacing = 20,
-            Padding = new Thickness(20),
-            Children = {  lbl, grid }
-        };
+                Label label = new Label
+                {
+                    Text = "",
+                    FontSize = 32,
+                    HorizontalOptions = LayoutOptions.Center,
+                    VerticalOptions = LayoutOptions.Center
+                };
+
+                frame.Content = label;
+                grid.Add(frame, row, col);
+                TapGestureRecognizer tap = new TapGestureRecognizer();
+                tap.Tapped += Btn_Clicked;
+                frame.GestureRecognizers.Add(tap);
+            }
+
+            Content = new VerticalStackLayout
+            {
+                Spacing = 20,
+                Padding = new Thickness(20),
+                Children = { lbl, grid }
+            };
+        }
     }
 
 
-       private async void Btn_Clicked(object? sender, EventArgs e)
+    private async void Btn_Clicked(object? sender, EventArgs e)
     {
-        if (sender is not Button btn)
-            return;
+        if (sender is not Frame frame) return;
 
-        if (btn.Text != "")
-            return;
+        if (frame.Content is not Label label) return;
+
+        if (label.Text != "") return;
 
         string symbol = isXTurn ? "X" : "O";
-        btn.Text = symbol;
+        label.Text = symbol;
 
         if (CheckWin(symbol))
         {
@@ -74,54 +84,46 @@ public partial class StartPage : ContentPage
 
         isXTurn = !isXTurn;
     }
-    
+
 
     bool CheckWin(string symbol)
     {
-        Button[,] buttons = new Button[3, 3];
-
+        Label[,] cells = new Label[3, 3];
         int index = 0;
 
-        foreach (Button b in grid.Children)
+        foreach (var child in grid.Children)
         {
-            int row = index / 3;
-            int col = index % 3;
-            buttons[row, col] = b;
-            index++;
+            if (child is Frame frame && frame.Content is Label label)
+            {
+                int row = index / 3;
+                int col = index % 3;
+                cells[row, col] = label;
+                index++;
+            }
         }
 
         for (int i = 0; i < 3; i++)
         {
-            if (buttons[i, 0].Text == symbol &&
-                buttons[i, 1].Text == symbol &&
-                buttons[i, 2].Text == symbol)
-                return true;
-
-            if (buttons[0, i].Text == symbol &&
-                buttons[1, i].Text == symbol &&
-                buttons[2, i].Text == symbol)
-                return true;
+            if (cells[i, 0].Text == symbol && cells[i, 1].Text == symbol && cells[i, 2].Text == symbol) return true;
+            if (cells[0, i].Text == symbol && cells[1, i].Text == symbol && cells[2, i].Text == symbol) return true;
         }
 
-        if (buttons[0, 0].Text == symbol &&
-            buttons[1, 1].Text == symbol &&
-            buttons[2, 2].Text == symbol)
-            return true;
-
-        if (buttons[0, 2].Text == symbol &&
-            buttons[1, 1].Text == symbol &&
-            buttons[2, 0].Text == symbol)
-            return true;
+        if (cells[0, 0].Text == symbol && cells[1, 1].Text == symbol && cells[2, 2].Text == symbol) return true;
+        if (cells[0, 2].Text == symbol && cells[1, 1].Text == symbol && cells[2, 0].Text == symbol) return true;
 
         return false;
     }
 
     private void ResetGame()
     {
-        foreach (Button b in grid.Children)
+        foreach (var child in grid.Children)
         {
-            b.Text = "";
+            if (child is Frame frame && frame.Content is Label label)
+            {
+                label.Text = "";
+            }
         }
+
         isXTurn = true;
     }
 
