@@ -6,7 +6,10 @@ public partial class StartPage : ContentPage
 {
 	Label lbl;
     Grid grid;
+    Button btn;
+    VerticalStackLayout vsl;
     bool isXTurn = true;
+
     public StartPage()
     {
         lbl = new Label
@@ -16,6 +19,8 @@ public partial class StartPage : ContentPage
             HorizontalOptions = LayoutOptions.Center
 
         };
+
+
 
         grid = new Grid
         {
@@ -55,13 +60,28 @@ public partial class StartPage : ContentPage
                 frame.GestureRecognizers.Add(tap);
             }
 
-            Content = new VerticalStackLayout
-            {
-                Spacing = 20,
-                Padding = new Thickness(20),
-                Children = { lbl, grid }
-            };
         }
+        btn = new Button
+        {
+            Text = "Start Game",
+            FontSize = 24,
+            HorizontalOptions = LayoutOptions.Center
+        };
+
+
+        vsl = new VerticalStackLayout
+        {
+            Spacing = 20,
+            Padding = new Thickness(20),
+            Children = { lbl, btn }
+        };
+        Content = vsl;
+        btn.Clicked += (s, e) =>
+        {
+            vsl.Children.Clear();
+            vsl.Children.Add(lbl);
+            vsl.Children.Add(grid);
+        };
     }
 
 
@@ -73,12 +93,37 @@ public partial class StartPage : ContentPage
 
         if (label.Text != "") return;
 
-        string symbol = isXTurn ? "X" : "O";
-        label.Text = symbol;
+        string symbol;
 
+        if (isXTurn)
+        {
+            symbol = "X";
+        }
+        else 
+        {
+            symbol = "O";
+        }
+        label.Text = symbol;
+        bool IsDraw()
+        {
+            foreach (var child in grid.Children)
+            {
+                if (child is Frame frame && frame.Content is Label label)
+                {
+                    if (label.Text == "")
+                        return false;
+                }
+            }
+            return true;
+        }
         if (CheckWin(symbol))
         {
             await DisplayAlertAsync("Game Over", symbol + " wins!", "OK");
+            ResetGame();
+        }
+        else if (IsDraw())
+        {
+            await DisplayAlertAsync("Game Over", "Viik!", "OK");
             ResetGame();
         }
 
