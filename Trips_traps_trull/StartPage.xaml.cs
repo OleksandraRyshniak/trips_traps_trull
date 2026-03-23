@@ -4,7 +4,7 @@ namespace Trips_traps_trull;
 
 public partial class StartPage : ContentPage
 {
-    Label lbl;
+    Label lbl, lblTurn;
     Grid grid;
     Button btn_start, btn_end;
     VerticalStackLayout vsl;
@@ -49,6 +49,12 @@ public partial class StartPage : ContentPage
             HorizontalOptions = LayoutOptions.Center
         };
 
+        lblTurn = new Label
+        {
+            FontSize = 22,
+            HorizontalOptions = LayoutOptions.Center
+        };
+
         btn_start.Clicked += Options;
 
         btn_end = new Button
@@ -82,7 +88,6 @@ public partial class StartPage : ContentPage
         Content = vsl;
     }
 
-    // выбор размера и создание поля + выбор символов + выбор ИИ
     private async void Options(object? sender, EventArgs e)
     {
         string sizeResult = await DisplayActionSheetAsync("Vali suurus", "Tühistamine", null, size.Keys.ToArray());
@@ -90,16 +95,14 @@ public partial class StartPage : ContentPage
         currentSize = size.ContainsKey(sizeResult) ? size[sizeResult] : 3;
 
         string p1 = await DisplayActionSheetAsync("Mängija 1 märk", "Tühistamine", null, icons.ToArray());
-        if (string.IsNullOrEmpty(p1) || p1 == "Tühistamine")
+        if (string.IsNullOrEmpty(p1) || p1 == "Tühistamine" || p1 == null)
             p1 = "X";
-
-       
 
         var remainingIcons = icons.Where(i => i != p1).ToArray();
         if (remainingIcons.Length == 0) remainingIcons = new string[] { "O" };
 
         string p2 = await DisplayActionSheetAsync("Mängija 2 märk", "Tühistamine", null, remainingIcons);
-        if (string.IsNullOrEmpty(p2) || p2 == "Tühistamine")
+        if (string.IsNullOrEmpty(p2) || p2 == "Tühistamine" || p2 == null)
             p2 = "O";
 
         player1Symbol = p1;
@@ -153,11 +156,14 @@ public partial class StartPage : ContentPage
         }
 
         isXTurn = true;
+        lblTurn.Text = $"Mängib: {player1Symbol}";
 
         vsl.Children.Clear();
         vsl.Children.Add(lbl);
+        vsl.Children.Add(lblTurn);
         vsl.Children.Add(grid);
         vsl.Children.Add(btn_end);
+
 
         // Если начинает робот
         if (isRobotPlaying && !isXTurn)
@@ -191,7 +197,7 @@ public partial class StartPage : ContentPage
         }
 
         isXTurn = !isXTurn;
-
+        lblTurn.Text = $"Mängib: {(isXTurn ? player1Symbol : player2Symbol)}";
         // Если сейчас ходит робот, делаем ход
         if (isRobotPlaying && !isXTurn)
         {
@@ -386,5 +392,6 @@ public partial class StartPage : ContentPage
         }
 
         isXTurn = true;
+        lblTurn.Text = $"Mängib: {player1Symbol}";
     }
 }
