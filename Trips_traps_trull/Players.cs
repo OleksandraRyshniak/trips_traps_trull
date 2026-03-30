@@ -9,7 +9,7 @@ namespace Trips_traps_trull
         bool isRobotPlaying = false;
         string player1Name = "Mängija 1";
         string player2Name = "Mängija 2";
-        bool name = false;
+        
         List<string> icons = new List<string>()
     {
         "X", "O", "🐧", "🕷️", "🌸"

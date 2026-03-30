@@ -44,7 +44,7 @@ public partial class StartPage : ContentPage
 
         btn_end = new Button
         {
-            Text = "New Game",
+            Text = "Uus mäng",
             FontSize = 24,
             BackgroundColor = Colors.LightPink,
             HorizontalOptions = LayoutOptions.Center
@@ -60,6 +60,17 @@ public partial class StartPage : ContentPage
             Text = "",
             FontSize = 22
         };
+        btn_history = new Button
+        {
+            Text = "Ajalugu",
+            FontSize = 20
+        };
+        btn_history.Clicked += async (s, e) =>
+        {
+            LoadHistory();
+            await Navigation.PushAsync(new HistoryPage(gameHistory, ClearHistory));
+            
+        };
 
         vsl = new VerticalStackLayout
         {
@@ -68,20 +79,11 @@ public partial class StartPage : ContentPage
             Children = { lbl, btn_start, btn_history }
         };
 
-        btn_history = new Button
-        {
-            Text = "History",
-            FontSize = 20
-        };
-        btn_history.Clicked += async (s, e) =>
-        {
-            
-            await Navigation.PushAsync(new HistoryPage(gameHistory, ClearHistory));
-            LoadHistory();
-        };
+
 
         btn_end.Clicked += (s, e) =>
         {
+            SaveHistory($"{player1Name}: {point1p}p. | {player2Name}: {point2p}p.");
             vsl.Children.Clear();
             vsl.Children.Add(lbl);
             vsl.Children.Add(btn_start);
@@ -118,12 +120,11 @@ public partial class StartPage : ContentPage
         player1Symbol = p1;
         player2Symbol = p2;
 
-        string playWith = await DisplayActionSheetAsync("Kas mängid robotiga?", "Tühistamine", null, new string[] { "Jah", "Ei" });
-        isRobotPlaying = playWith == "Jah";
+        bool answer = await DisplayAlertAsync("Küsimus", "Kas mängid robotiga?", "Jah", "Ei");
+        isRobotPlaying = answer;
 
-        // ВОТ ЗДЕСЬ — вызов логики регистрации
         string? name1 = await DisplayPromptAsync("Mängija 1", "Mis on mängija 1 nimi?");
-        if (string.IsNullOrWhiteSpace(name1)) name1 = "Opilane";
+        if (string.IsNullOrWhiteSpace(name1)) name1 = "Mängija 1";
         player1Name = name1;
         Preferences.Set("PlayerName1", name1);
 
@@ -195,8 +196,8 @@ public partial class StartPage : ContentPage
             oldParent2.Remove(lblPlayer2);
         hsl.Add(lblPlayer1);
         hsl.Add(lblPlayer2);
-        lblPlayer1.Text = $"{player1Name} \n Points: {point1p}";
-        lblPlayer2.Text = $"{player2Name} \n Points: {point2p}";
+        lblPlayer1.Text = $"{player1Name} \n Punktid: {point1p}";
+        lblPlayer2.Text = $"{player2Name} \n Punktid: {point2p}";
         isXTurn = true;
         isXTurn = new Random().Next(2) == 0;
 

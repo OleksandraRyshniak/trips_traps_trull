@@ -22,13 +22,10 @@
 
             if (CheckWin(symbol))
             {
-                await DisplayAlertAsync("Game Over", name + " wins!", "OK");
+                await DisplayAlertAsync("Mäng läbi", name + " võitis!", "OK");
 
                 if (isXTurn) point1p++;
                 else point2p++;
-
-                SaveHistory(name);
-
                 UpdateScore();
                  await ResetGame();
                 return;
@@ -36,8 +33,7 @@
 
             if (IsDraw())
             {
-                await DisplayAlertAsync("Game Over", "Viik!", "OK");
-                SaveHistory("Draw");
+                await DisplayAlertAsync("Mäng läbi", "Viik!", "OK");
                 await ResetGame();
                 return;
             }
@@ -141,12 +137,8 @@
 
         private void SaveHistory(string result)
         {
-            string winner = result == "Draw" ? "Ничья" : result;
-            string record = $"{DateTime.Now:dd.MM.yyyy HH:mm} | {player1Name} {point1p} : {point2p} {player2Name} | Победитель: {winner}";
 
-            gameHistory.Add(record);
-
-            string raw = string.Join('\n', gameHistory);
+            string raw = string.Join("\n---\n", gameHistory);
             Preferences.Set("game_history", raw);
         }
 
@@ -157,8 +149,8 @@
         }
         private void UpdateScore()
         {
-            lblPlayer1.Text = $"{player1Name} \n Points: {point1p}";
-            lblPlayer2.Text = $"{player2Name} \n Points: {point2p}";
+            lblPlayer1.Text = $"{player1Name} \n Punktid: {point1p}";
+            lblPlayer2.Text = $"{player2Name} \n Punktid: {point2p}";
         }
 
     }

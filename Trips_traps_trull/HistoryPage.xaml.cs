@@ -4,7 +4,7 @@ public partial class HistoryPage : ContentPage
 {
     public HistoryPage(List<string> history, Action onClear)
     {
-        Title = "История игр";
+        Title = "Mängu ajalugu";
 
         var items = history.AsEnumerable().Reverse().ToList();
 
@@ -13,12 +13,20 @@ public partial class HistoryPage : ContentPage
             ItemsSource = items,
             ItemTemplate = new DataTemplate(() =>
             {
-                var label = new Label { FontSize = 14, Padding = new Thickness(8) };
+                var label = new Label
+                {
+                    FontSize = 16,
+                    Padding = new Thickness(10),
+                    LineBreakMode = LineBreakMode.WordWrap
+                };
                 label.SetBinding(Label.TextProperty, ".");
+
                 return new Border
                 {
                     Stroke = Colors.LightGray,
-                    Margin = new Thickness(0, 3),
+                    BackgroundColor = Colors.White,
+                    Margin = new Thickness(0, 6),
+                    Padding = new Thickness(4),
                     Content = label
                 };
             })
@@ -26,8 +34,10 @@ public partial class HistoryPage : ContentPage
 
         var btnClear = new Button
         {
-            Text = "Очистить историю",
+            Text = "Tühjenda ajalugu",
             BackgroundColor = Colors.LightCoral,
+            TextColor = Colors.White,
+            FontSize = 16,
             HorizontalOptions = LayoutOptions.Center
         };
 
@@ -47,7 +57,7 @@ public partial class HistoryPage : ContentPage
             {
                 new Label
                 {
-                    Text = $"История игр ({history.Count})",
+                    Text = $"Mängu ajalugu ({history.Count} mängu)",
                     FontSize = 24,
                     FontAttributes = FontAttributes.Bold,
                     HorizontalOptions = LayoutOptions.Center
