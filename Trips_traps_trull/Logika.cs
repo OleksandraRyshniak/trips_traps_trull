@@ -137,7 +137,8 @@
 
         private void SaveHistory(string result)
         {
-
+            string record = $"{result}";
+            gameHistory.Add(record);
             string raw = string.Join("\n---\n", gameHistory);
             Preferences.Set("game_history", raw);
         }

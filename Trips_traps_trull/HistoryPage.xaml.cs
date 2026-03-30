@@ -57,7 +57,7 @@ public partial class HistoryPage : ContentPage
             {
                 new Label
                 {
-                    Text = $"Mängu ajalugu ({history.Count} mängu)",
+                    Text = $"Mängu ajalugu",
                     FontSize = 24,
                     FontAttributes = FontAttributes.Bold,
                     HorizontalOptions = LayoutOptions.Center
