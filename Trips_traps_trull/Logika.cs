@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Trips_traps_trull
+﻿namespace Trips_traps_trull
 {
     public partial class StartPage
     {
@@ -14,28 +10,44 @@ namespace Trips_traps_trull
         {"3x3", 3}, {"4x4", 4}, {"5x5", 5}
     };
 
-        private async void MakeMove(int row, int col, string symbol)
+        private async Task MakeMove(int row, int col)
         {
             var label = GetLabel(row, col);
-            if (label == null) return;
+            if (label == null || label.Text != "") return;
+
+            string symbol = isXTurn ? player1Symbol : player2Symbol;
+            string name = isXTurn ? player1Name : player2Name;
 
             label.Text = symbol;
 
             if (CheckWin(symbol))
             {
-                await DisplayAlertAsync("Game Over", symbol + " wins!", "OK");
-                ResetGame();
+                await DisplayAlertAsync("Game Over", name + " wins!", "OK");
+
+                if (isXTurn) point1p++;
+                else point2p++;
+
+                SaveHistory(name);
+
+                UpdateScore();
+                 await ResetGame();
                 return;
             }
 
             if (IsDraw())
             {
                 await DisplayAlertAsync("Game Over", "Viik!", "OK");
-                ResetGame();
+                SaveHistory("Draw");
+                await ResetGame();
                 return;
             }
 
             isXTurn = !isXTurn;
+
+            lblTurn.Text = $"Mängib {(isXTurn ? player1Name : player2Name)}: {(isXTurn ? player1Symbol : player2Symbol)}";
+
+            if (isRobotPlaying && !isXTurn)
+                await RobotMove();
         }
 
         private bool IsDraw()
@@ -69,31 +81,22 @@ namespace Trips_traps_trull
 
             for (int i = 0; i < currentSize; i++)
             {
-                bool rowWin = true;
-                bool colWin = true;
+                if (Enumerable.Range(0, currentSize).All(j => cells[i, j].Text == symbol))
+                    return true;
 
-                for (int j = 0; j < currentSize; j++)
-                {
-                    if (cells[i, j].Text != symbol) rowWin = false;
-                    if (cells[j, i].Text != symbol) colWin = false;
-                }
-
-                if (rowWin || colWin) return true;
+                if (Enumerable.Range(0, currentSize).All(j => cells[j, i].Text == symbol))
+                    return true;
             }
 
-            bool diag1 = true;
-            bool diag2 = true;
+            if (Enumerable.Range(0, currentSize).All(i => cells[i, i].Text == symbol))
+                return true;
 
-            for (int i = 0; i < currentSize; i++)
-            {
-                if (cells[i, i].Text != symbol) diag1 = false;
-                if (cells[i, currentSize - 1 - i].Text != symbol) diag2 = false;
-            }
+            if (Enumerable.Range(0, currentSize).All(i => cells[i, currentSize - 1 - i].Text == symbol))
+                return true;
 
-            return diag1 || diag2;
+            return false;
         }
-
-        private void ResetGame()
+        private async Task ResetGame()
         {
             foreach (var child in grid.Children)
             {
@@ -119,9 +122,44 @@ namespace Trips_traps_trull
                 currentSymbol = player2Symbol;
             }
 
-            lblTurn.Text = $"Mängib: {currentSymbol}";
+            lblTurn.Text = $"Mängib {currentName}: {currentSymbol}";
+
+            if (isRobotPlaying && !isXTurn)
+                await RobotMove();
         }
 
+        List<string> gameHistory = new List<string>();
+
+        private void LoadHistory()
+        {
+            string raw = Preferences.Get("game_history", "");
+            if (!string.IsNullOrEmpty(raw))
+                gameHistory = new List<string>(raw.Split('\n', StringSplitOptions.RemoveEmptyEntries));
+            else
+                gameHistory = new List<string>();
+        }
+
+        private void SaveHistory(string result)
+        {
+            string winner = result == "Draw" ? "Ничья" : result;
+            string record = $"{DateTime.Now:dd.MM.yyyy HH:mm} | {player1Name} {point1p} : {point2p} {player2Name} | Победитель: {winner}";
+
+            gameHistory.Add(record);
+
+            string raw = string.Join('\n', gameHistory);
+            Preferences.Set("game_history", raw);
+        }
+
+        private void ClearHistory()
+        {
+            gameHistory.Clear();
+            Preferences.Remove("game_history");
+        }
+        private void UpdateScore()
+        {
+            lblPlayer1.Text = $"{player1Name} \n Points: {point1p}";
+            lblPlayer2.Text = $"{player2Name} \n Points: {point2p}";
+        }
 
     }
 }

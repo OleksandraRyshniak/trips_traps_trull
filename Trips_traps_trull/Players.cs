@@ -6,7 +6,6 @@ namespace Trips_traps_trull
 {
     public partial class StartPage
     {
-        // Новый флаг — играет ли второй игрок робот
         bool isRobotPlaying = false;
         string player1Name = "Mängija 1";
         string player2Name = "Mängija 2";
@@ -72,53 +71,43 @@ namespace Trips_traps_trull
 
                         if (CheckWin(symbol))
                         {
-                            SetCell(row, col, ""); // откат
+                            SetCell(row, col, ""); 
                             return (row, col);
                         }
 
-                        SetCell(row, col, ""); // откат
+                        SetCell(row, col, ""); 
                     }
                 }
             }
             return null;
         }
-
-        // Логика хода робота: ставит символ в первую свободную клетку
         private async Task RobotMove()
         {
             await Task.Delay(500);
-
-            // 1. Если можем выиграть — делаем победный ход
             var move = FindBestMove(player2Symbol);
             if (move != null)
             {
-                MakeMove(move.Value.row, move.Value.col, player2Symbol);
+                await MakeMove(move.Value.row, move.Value.col);
                 return;
             }
-
-            // 2. Если игрок может выиграть — блокируем
             move = FindBestMove(player1Symbol);
             if (move != null)
             {
-                MakeMove(move.Value.row, move.Value.col, player2Symbol);
+                await MakeMove(move.Value.row, move.Value.col);
                 return;
             }
-
-            // 3. Берём центр (если есть)
             int center = currentSize / 2;
             if (IsCellEmpty(center, center))
             {
-                MakeMove(center, center, player2Symbol);
+                await MakeMove(center, center); 
                 return;
             }
-
-            // 4. Случайный ход
             var emptyCells = GetEmptyCells();
             if (emptyCells.Count > 0)
             {
                 var rnd = new Random();
                 var randomMove = emptyCells[rnd.Next(emptyCells.Count)];
-                MakeMove(randomMove.row, randomMove.col, player2Symbol);
+                await MakeMove(randomMove.row, randomMove.col); 
             }
         }
 

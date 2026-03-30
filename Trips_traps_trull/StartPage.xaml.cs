@@ -6,7 +6,7 @@ public partial class StartPage : ContentPage
 {
     Label lbl, lblTurn, lblPlayer1, lblPlayer2;
     Grid grid;
-    Button btn_start, btn_end;
+    Button btn_start, btn_end, btn_history;
     VerticalStackLayout vsl;
     HorizontalStackLayout hsl;
     int point1p = 0;
@@ -65,7 +65,19 @@ public partial class StartPage : ContentPage
         {
             Spacing = 20,
             Padding = new Thickness(20),
-            Children = { lbl, btn_start }
+            Children = { lbl, btn_start, btn_history }
+        };
+
+        btn_history = new Button
+        {
+            Text = "History",
+            FontSize = 20
+        };
+        btn_history.Clicked += async (s, e) =>
+        {
+            
+            await Navigation.PushAsync(new HistoryPage(gameHistory, ClearHistory));
+            LoadHistory();
         };
 
         btn_end.Clicked += (s, e) =>
@@ -73,8 +85,11 @@ public partial class StartPage : ContentPage
             vsl.Children.Clear();
             vsl.Children.Add(lbl);
             vsl.Children.Add(btn_start);
+            vsl.Children.Add(btn_history);
             isRobotPlaying = false;
             isXTurn = true;
+            point1p = 0;
+            point2p = 0;
             grid.RowDefinitions.Clear();
             grid.ColumnDefinitions.Clear();
             grid.Children.Clear();
@@ -124,8 +139,7 @@ public partial class StartPage : ContentPage
             player2Name = "Robot";
         }
 
-        grid.RowDefinitions.Clear();
-        // ...
+        LoadHistory();
 
         grid.RowDefinitions.Clear();
         grid.ColumnDefinitions.Clear();
@@ -174,6 +188,11 @@ public partial class StartPage : ContentPage
             HorizontalOptions = LayoutOptions.Center
 
         };
+        if (lblPlayer1.Parent is Layout oldParent1)
+            oldParent1.Remove(lblPlayer1);
+
+        if (lblPlayer2.Parent is Layout oldParent2)
+            oldParent2.Remove(lblPlayer2);
         hsl.Add(lblPlayer1);
         hsl.Add(lblPlayer2);
         lblPlayer1.Text = $"{player1Name} \n Points: {point1p}";
@@ -195,7 +214,7 @@ public partial class StartPage : ContentPage
             currentSymbol = player2Symbol;
         }
 
-        lblTurn.Text = $"Mängib: {currentSymbol}";
+        lblTurn.Text = $"Mängib {currentName}: {currentSymbol}";
 
         vsl.Children.Clear();
         vsl.Children.Add(lbl);
@@ -203,6 +222,7 @@ public partial class StartPage : ContentPage
         vsl.Children.Add(grid);
         vsl.Children.Add(hsl);
         vsl.Children.Add(btn_end);
+        vsl.Children.Add(btn_history);
 
         if (isRobotPlaying && !isXTurn)
         {
@@ -213,33 +233,11 @@ public partial class StartPage : ContentPage
     private async void Btn_Clicked(object? sender, EventArgs e)
     {
         if (sender is not Border frame) return;
-        if (frame.Content is not Label label) return;
-        if (label.Text != "") return;
 
-        string symbol = isXTurn ? player1Symbol : player2Symbol;
-        label.Text = symbol;
+        int index = grid.Children.IndexOf(frame);
+        int row = index / currentSize;
+        int col = index % currentSize;
 
-        if (CheckWin(symbol))
-        {
-            await DisplayAlertAsync("Game Over", symbol + " wins!", "OK");
-            ResetGame();
-            return;
-        }
-
-        if (IsDraw())
-        {
-            await DisplayAlertAsync("Game Over", "Viik!", "OK");
-            ResetGame();
-            return;
-        }
-
-        isXTurn = !isXTurn;
-        lblTurn.Text = $"Mängib: {(
-            isXTurn ? player1Symbol : player2Symbol)}";
-
-        if (isRobotPlaying && !isXTurn)
-        {
-            await RobotMove();
-        }
+        await MakeMove(row, col);
     }
 }
