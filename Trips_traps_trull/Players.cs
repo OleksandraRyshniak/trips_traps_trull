@@ -22,11 +22,14 @@ namespace Trips_traps_trull
 
         private Label GetLabel(int row, int col)
         {
-            int index = row * currentSize + col;
-
-            if (grid.Children[index] is Border frame && frame.Content is Label label)
-                return label;
-
+            foreach (var child in grid.Children)
+            {
+                if (child is Border frame &&
+                    Grid.GetRow(frame) == row &&
+                    Grid.GetColumn(frame) == col &&
+                    frame.Content is Label label)
+                    return label;
+            }
             return null;
         }
 

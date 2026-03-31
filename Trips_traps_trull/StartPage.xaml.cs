@@ -31,6 +31,8 @@ public partial class StartPage : ContentPage
         {
             Text = "Alusta mäng",
             FontSize = 24,
+            TextColor = Colors.Black,
+            BackgroundColor = Colors.Lavender,
             HorizontalOptions = LayoutOptions.Center
         };
 
@@ -46,7 +48,8 @@ public partial class StartPage : ContentPage
         {
             Text = "Uus mäng",
             FontSize = 24,
-            BackgroundColor = Colors.LightPink,
+            TextColor = Colors.Black,
+            BackgroundColor = Colors.Lavender,
             HorizontalOptions = LayoutOptions.Center
         };
 
@@ -63,7 +66,10 @@ public partial class StartPage : ContentPage
         btn_history = new Button
         {
             Text = "Ajalugu",
-            FontSize = 20
+            FontSize = 24,
+            TextColor = Colors.Black,
+            BackgroundColor = Colors.Lavender,
+            HorizontalOptions = LayoutOptions.Center
         };
         btn_history.Clicked += async (s, e) =>
         {
@@ -235,9 +241,8 @@ public partial class StartPage : ContentPage
     {
         if (sender is not Border frame) return;
 
-        int index = grid.Children.IndexOf(frame);
-        int row = index / currentSize;
-        int col = index % currentSize;
+        int row = Grid.GetRow(frame);
+        int col = Grid.GetColumn(frame);
 
         await MakeMove(row, col);
     }

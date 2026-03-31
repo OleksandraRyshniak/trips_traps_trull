@@ -12,6 +12,7 @@
 
         private async Task MakeMove(int row, int col)
         {
+            
             var label = GetLabel(row, col);
             if (label == null || label.Text != "") return;
 
@@ -62,33 +63,54 @@
         private bool CheckWin(string symbol)
         {
             Label[,] cells = new Label[currentSize, currentSize];
-            int index = 0;
 
             foreach (var child in grid.Children)
             {
                 if (child is Border frame && frame.Content is Label label)
                 {
-                    int row = index / currentSize;
-                    int col = index % currentSize;
+                    int row = Grid.GetRow(frame);
+                    int col = Grid.GetColumn(frame);
                     cells[row, col] = label;
-                    index++;
                 }
             }
-
             for (int i = 0; i < currentSize; i++)
             {
-                if (Enumerable.Range(0, currentSize).All(j => cells[i, j].Text == symbol))
-                    return true;
+                if (Enumerable.Range(0, currentSize)
+                    .All(j => cells[i, j]?.Text == symbol))
+                {
+                    for (int j = 0; j < currentSize; j++)
+                        
 
-                if (Enumerable.Range(0, currentSize).All(j => cells[j, i].Text == symbol))
                     return true;
+                }
             }
+            for (int i = 0; i < currentSize; i++)
+            {
+                if (Enumerable.Range(0, currentSize)
+                    .All(j => cells[j, i]?.Text == symbol))
+                {
+                    for (int j = 0; j < currentSize; j++)
+                       
 
-            if (Enumerable.Range(0, currentSize).All(i => cells[i, i].Text == symbol))
-                return true;
+                    return true;
+                }
+            }
+            if (Enumerable.Range(0, currentSize)
+                .All(i => cells[i, i]?.Text == symbol))
+            {
+                for (int i = 0; i < currentSize; i++)
+                   
 
-            if (Enumerable.Range(0, currentSize).All(i => cells[i, currentSize - 1 - i].Text == symbol))
                 return true;
+            }
+            if (Enumerable.Range(0, currentSize)
+                .All(i => cells[i, currentSize - 1 - i]?.Text == symbol))
+            {
+                for (int i = 0; i < currentSize; i++)
+                    
+
+                return true;
+            }
 
             return false;
         }
@@ -99,6 +121,7 @@
                 if (child is Border frame && frame.Content is Label label)
                 {
                     label.Text = "";
+                    frame.BackgroundColor = Colors.Transparent;
                 }
             }
 
@@ -139,7 +162,7 @@
         {
             string record = $"{result}";
             gameHistory.Add(record);
-            string raw = string.Join("\n---\n", gameHistory);
+            string raw = string.Join("\n", gameHistory);
             Preferences.Set("game_history", raw);
         }
 

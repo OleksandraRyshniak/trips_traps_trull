@@ -34,9 +34,9 @@ public partial class HistoryPage : ContentPage
 
         var btnClear = new Button
         {
-            Text = "Tühjenda ajalugu",
+            Text = "Kustuta ajalugu",
             BackgroundColor = Colors.LightCoral,
-            TextColor = Colors.White,
+            TextColor = Colors.Black,
             FontSize = 16,
             HorizontalOptions = LayoutOptions.Center
         };
